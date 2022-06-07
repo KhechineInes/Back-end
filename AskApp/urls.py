@@ -18,6 +18,8 @@ urlpatterns = [
     url(r'^post/([0-9]+)$', views.postApi),
     url(r'^ans/$', views.answerApi),
     url(r'^ans/([0-9]+)$', views.answerApi),
+    url(r'^vote/$', views.voteApi),
+    url(r'^vote/([0-9]+)$', views.voteApi),
     url(r'^categories/$', views.categoriesApi),
     url(r'^categories/([0-9]+)$', views.categoriesApi),
     url(r'^password/reset/$', views.PasswordResetView.as_view(),

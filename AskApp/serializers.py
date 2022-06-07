@@ -9,7 +9,7 @@ from AskApp.models import Answers, Cat, Posts, profile
 from AsktoSolve import settings
 from allauth.account.adapter import get_adapter
 
-from .models import User
+from .models import User, Vote
 from allauth.account.utils import setup_user_email
 
 from django.contrib.auth import get_user_model, authenticate
@@ -388,8 +388,23 @@ class AnswersSerializer(serializers.ModelSerializer):
                   )
         
         
-        
-        
+class VoteSerializer(serializers.ModelSerializer):
+    user_id=UserSerializer()
+    post_id=postserializer()
+    ans_id=AnswersSerializer()
+    owner = serializers.ReadOnlyField(source='owner.username') #important
+    class Meta:
+        model = Vote
+        fields = ('VoteId',
+                  'Positive',
+                  'Negative',
+                  'post_id',
+                  'ans_id',
+                  'date',
+                  'user_id',
+                  'owner',
+                  )
+           
         
         
 class CategoriesSerializer(serializers.ModelSerializer):

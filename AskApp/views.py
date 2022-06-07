@@ -23,8 +23,8 @@ from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from AskApp.models import Answers, Cat, Posts
-from AskApp.serializers import AnswersSerializer, CategoriesSerializer, CategorySerializer, LoginSerializer, PasswordChangeSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer, PublicationSerializer, UserSerializer, ansserializer, postSerializer, postserializer, userSerializer
+from AskApp.models import Answers, Cat, Posts, Vote
+from AskApp.serializers import AnswersSerializer, CategoriesSerializer, CategorySerializer, LoginSerializer, PasswordChangeSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer, PublicationSerializer, UserSerializer, VoteSerializer, ansserializer, postSerializer, postserializer, userSerializer
 from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
 from rest_framework import authentication
@@ -292,6 +292,37 @@ def answerApi(request, id=0):
         ans = Answers.objects.get(AnsId=id)
         ans.delete()
         return JsonResponse("Deleted Succeffully!!", safe=False)
+
+
+
+@csrf_exempt
+def voteApi(request, id=0):
+    if request.method == 'GET':
+        votes = Vote.objects.all()
+        vote_serializer = VoteSerializer(votes, many=True)
+        return JsonResponse(vote_serializer.data, safe=False)
+
+    elif request.method == 'POST':
+        vote_data = JSONParser().parse(request)
+        vote_serializer = VoteSerializer(data=vote_data)
+        if vote_serializer.is_valid():
+            vote_serializer.save()
+            return JsonResponse("Added Successfully!!", safe=False)
+        return JsonResponse("Failed to Add.", safe=False)
+
+  
+
+    elif request.method == 'DELETE':
+        ans = Answers.objects.get(VoteId=id)
+        ans.delete()
+        return JsonResponse("Deleted Succeffully!!", safe=False)
+
+
+
+
+
+
+
 
 
 @csrf_exempt
