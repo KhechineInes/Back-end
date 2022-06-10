@@ -92,7 +92,12 @@ class CustomAuthToken(ObtainAuthToken):
                 'last_name': user.last_name,
                 'first_name': user.first_name,
                 'email': user.email,
-              
+                'Education': user.account.Education,
+                'Function': user.account.Function,
+                'Address':user.account.Address,
+                'MobileNumber': user.account.MobileNumber
+                
+               
 
             })
 

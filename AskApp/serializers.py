@@ -1,5 +1,6 @@
 
 from dataclasses import fields
+import profile
 from rest_framework.authtoken.models import Token
 from rest_framework import serializers
 
@@ -9,7 +10,7 @@ from AskApp.models import Answers, Cat, Posts
 from AsktoSolve import settings
 from allauth.account.adapter import get_adapter
 
-from .models import User, Vote
+from .models import Profile, User, Vote
 from allauth.account.utils import setup_user_email
 
 from django.contrib.auth import get_user_model, authenticate
@@ -26,25 +27,34 @@ from rest_framework.exceptions import ValidationError
 
 from .utils import import_callable
 
-
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Profile
+        fields=['Education',
+                'Function',
+                'Image',
+                'Address',
+                'MobileNumber']
+ 
   
 
 class UserSerializer(serializers.ModelSerializer):
-   
+  
     owner = serializers.ReadOnlyField(source='owner.username')
-    
+    account=ProfileSerializer()
 
     class Meta:
         model = User
-        fields = ('id','last_login', 'username', 'password','owner', 'date_joined' ,'email'  )
+        fields = ('id','last_login', 'username', 'password','owner', 'date_joined' ,'email','account'  )
         extra_kwargs = {'password': {'write_only': True , 'required': True}} 
 
    
 class user(serializers.ModelSerializer)  :
+    account=ProfileSerializer()
     class Meta:
        
         model = User
-        fields = ('id','username', 'password' ,'email')
+        fields = ('id','username', 'password' ,'email','account')
     
 # Register Serializer
 class RegisterSerializer(serializers.ModelSerializer):

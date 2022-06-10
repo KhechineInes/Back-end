@@ -55,6 +55,7 @@ owner = models.ForeignKey('auth.User', related_name='snippets', on_delete=models
 highlighted = models.TextField()
 
 
+
     
 
 
@@ -70,7 +71,13 @@ class Cat(models.Model):
     CatFramework = models.CharField(max_length = 100)
     CatLang = models.CharField(max_length = 100)
     Image = models.CharField(max_length=255) 
-    
+class Profile(models.Model):
+    account = models.OneToOneField(User,related_name='account',null=True,on_delete=models.CASCADE)
+    Image= models.CharField(max_length=255, null=True)
+    Education= models.CharField(max_length=255, null=True)
+    Function= models.CharField(max_length=255 , null=True)
+    Address= models.CharField(max_length=255, null=True)
+    MobileNumber= models.IntegerField(null=True)   
 class Posts(models.Model):
     cat= models.ForeignKey(Cat,null=True,on_delete=models.CASCADE,related_name='cate')
     user= models.ForeignKey(User,null=True,on_delete=models.CASCADE,related_name='posts')
