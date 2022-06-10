@@ -22,12 +22,11 @@ urlpatterns = [
     url(r'^vote/([0-9]+)$', views.voteApi),
     url(r'^categories/$', views.categoriesApi),
     url(r'^categories/([0-9]+)$', views.categoriesApi),
-    url(r'^password/reset/$', views.PasswordResetView.as_view(),
-        name='rest_password_reset'),
-    url(r'^password/reset/confirm/$', views.PasswordResetConfirmView.as_view(),
-        name='rest_password_reset_confirm'),
-    url(r'^password/change/$', views.PasswordChangeView.as_view(),
-        name='rest_password_change'),
+   
+   
+       
+   
+    path('register/', views.RegisterAPI.as_view(), name='register')
     
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -54,14 +54,7 @@ class response(models.Model):
 owner = models.ForeignKey('auth.User', related_name='snippets', on_delete=models.CASCADE)
 highlighted = models.TextField()
 
-class profile(models.Model):
-    
-    account = models.OneToOneField(User,related_name='account',  on_delete=models.CASCADE)
-    Image= models.CharField(max_length=255)
-    Education= models.CharField(max_length=255, null=True)
-    Function= models.CharField(max_length=255 , null=True)
-    Address= models.CharField(max_length=255, null=True)
-    MobileNumber= models.IntegerField()
+
     
 
 

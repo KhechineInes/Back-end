@@ -4,6 +4,7 @@ import json
 from multiprocessing import AuthenticationError
 import random
 from django.views.decorators.debug import sensitive_post_parameters
+from numpy import generic
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
@@ -24,78 +25,16 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 from AskApp.models import Answers, Cat, Posts, Vote
-from AskApp.serializers import AnswersSerializer, CategoriesSerializer, CategorySerializer, LoginSerializer, PasswordChangeSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer, PublicationSerializer, UserSerializer, VoteSerializer, ansserializer, postSerializer, postserializer, userSerializer
+from AskApp.serializers import AnswersSerializer, CategoriesSerializer, CategorySerializer, PublicationSerializer, RegisterSerializer, UserSerializer, VoteSerializer, ansserializer, postSerializer, userSerializer
 from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
 from rest_framework import authentication
 from rest_framework import exceptions
 from rest_framework import status, viewsets
 from django.views.decorators.debug import sensitive_post_parameters
-
-class PasswordResetView(GenericAPIView):
-    """
-    Calls Django Auth PasswordResetForm save method.
-    Accepts the following POST parameters: email
-    Returns the success/fail message.
-    """
-    serializer_class = PasswordResetSerializer
-    permission_classes = (AllowAny,)
-
-    def post(self, request, *args, **kwargs):
-        # Create a serializer with request.data
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        serializer.save()
-        # Return the success message with OK HTTP status
-        return Response(
-            {"detail": ("Password reset e-mail has been sent.")},
-            status=status.HTTP_200_OK
-        )
+from rest_framework import generics, permissions
 
 
-class PasswordResetConfirmView(GenericAPIView):
-    """
-    Password reset e-mail link is confirmed, therefore
-    this resets the user's password.
-    Accepts the following POST parameters: token, uid,
-        new_password1, new_password2
-    Returns the success/fail message.
-    """
-    serializer_class = PasswordResetConfirmSerializer
-    permission_classes = (AllowAny,)
-
-    
-    def dispatch(self, *args, **kwargs):
-        return super(PasswordResetConfirmView, self).dispatch(*args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            {"detail": ("Password has been reset with the new password.")}
-        )
-
-
-class PasswordChangeView(GenericAPIView):
-    """
-    Calls Django Auth SetPasswordForm save method.
-    Accepts the following POST parameters: new_password1, new_password2
-    Returns the success/fail message.
-    """
-    serializer_class = PasswordChangeSerializer
-    permission_classes = (IsAuthenticated,)
-
-
-    def dispatch(self, *args, **kwargs):
-        return super(PasswordChangeView, self).dispatch(*args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({"detail": ("New password has been saved.")})
 
 
 
@@ -153,13 +92,7 @@ class CustomAuthToken(ObtainAuthToken):
                 'last_name': user.last_name,
                 'first_name': user.first_name,
                 'email': user.email,
-                'Education': user.account.Education,
-                'Image': user.account.Image,
-                'Function': user.account.Function,
-                'MobileNumber': user.account.MobileNumber,
-                'Address': user.account.Address,
-                'last_login': user.last_login,
-                'date_joined': user.date_joined,
+              
 
             })
 
@@ -177,12 +110,17 @@ def userApi(request, id=0):
 
     elif request.method == 'POST':
         user_data = JSONParser().parse(request)
-
-        user_serializer = UserSerializer(data=user_data)
-        if user_serializer.is_valid():
-            user_serializer.save()
-            return JsonResponse("Added Successfully!!", safe=False)
-        return JsonResponse("Failed to Add.", safe=False)
+        
+        serializer = UserSerializer(data=user_data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return JsonResponse({
+                   
+                   "user": UserSerializer(user).data,
+                   "token": Token.objects.create(user=user)[1]})
+        return JsonResponse("Failed to Add", safe=False)
+       
+       
 
     elif request.method == 'PUT':
         user_data = JSONParser().parse(request)
@@ -198,7 +136,18 @@ def userApi(request, id=0):
         user.delete()
         return JsonResponse("Deleted Succeffully!!", safe=False)
 
+# Register API
+class RegisterAPI(generics.GenericAPIView):
+    serializer_class = RegisterSerializer
 
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+        "user": UserSerializer(user, context=self.get_serializer_context()).data,
+        "token": Token.objects.create(user=user)
+        })
 @csrf_exempt
 def postApi(request, id=0):
     if request.method == 'GET':
