@@ -22,7 +22,8 @@ urlpatterns = [
     url(r'^vote/([0-9]+)$', views.voteApi),
     url(r'^categories/$', views.categoriesApi),
     url(r'^categories/([0-9]+)$', views.categoriesApi),
-   
+    url(r'^profile/$', views.ProfileApi),
+    url(r'^profile/([0-9]+)$', views.   ProfileApi),
    
        
    

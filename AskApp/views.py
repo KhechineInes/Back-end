@@ -24,8 +24,8 @@ from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from AskApp.models import Answers, Cat, Posts, Vote
-from AskApp.serializers import AnswersSerializer, CategoriesSerializer, CategorySerializer, PublicationSerializer, RegisterSerializer, UserSerializer, VoteSerializer, ansserializer, postSerializer, userSerializer
+from AskApp.models import Answers, Cat, Posts, Profile, Vote
+from AskApp.serializers import AnswersSerializer, CategoriesSerializer, CategorySerializer, ProfileSerializer, PublicationSerializer, RegisterSerializer, UserSerializer, VoteSerializer, ansserializer, postSerializer, userSerializer
 from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
 from rest_framework import authentication
@@ -89,16 +89,8 @@ class CustomAuthToken(ObtainAuthToken):
                 'token': token.key,
                 'user_id': user.pk,
                 'username': user.username,
-                'last_name': user.last_name,
-                'first_name': user.first_name,
                 'email': user.email,
-                'Education': user.account.Education,
-                'Function': user.account.Function,
-                'Address':user.account.Address,
-                'MobileNumber': user.account.MobileNumber
-                
-               
-
+                'Function': user.account.Function
             })
 
         else:
@@ -149,10 +141,14 @@ class RegisterAPI(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        return Response({
-        "user": UserSerializer(user, context=self.get_serializer_context()).data,
-        "token": Token.objects.create(user=user)
-        })
+        
+       # return Response({
+       # "user": UserSerializer(user, context=self.get_serializer_context()).data,
+        #"token": Token.objects.create(user=user)
+       
+        #})
+        return JsonResponse("Added Successfully", safe=False
+                            )
 @csrf_exempt
 def postApi(request, id=0):
     if request.method == 'GET':
@@ -272,7 +268,34 @@ def voteApi(request, id=0):
         return JsonResponse("Deleted Succeffully!!", safe=False)
 
 
+@csrf_exempt
+def ProfileApi(request, id=0):
+    if request.method == 'GET':
+        profile = Profile.objects.all()
+        profile_serializer = ProfileSerializer(profile, many=True)
+        return JsonResponse(profile_serializer.data, safe=False)
 
+    elif request.method == 'POST':
+        profiles_data = JSONParser().parse(request)
+        profile_serializer = ProfileSerializer(data=profiles_data)
+        if profile_serializer.is_valid():
+            profile_serializer.save()
+            return JsonResponse("Added Successfully!!", safe=False)
+        return JsonResponse("Failed to Add.", safe=False)
+
+    elif request.method == 'PUT':
+        profiles_data = JSONParser().parse(request)
+        Id = Profile.objects.get(CatId=profiles_data['id'])
+        profile_serializer = ProfileSerializer(Id, data=profiles_data)
+        if profile_serializer.is_valid():
+            profile_serializer.save()
+            return JsonResponse("Updated Successfully!!", safe=False)
+        return JsonResponse("Failed to Update.", safe=False)
+
+    elif request.method == 'DELETE':
+        profile = Profile.objects.get(Id=id)
+        profile.delete()
+        return JsonResponse("Deleted Succeffully!!", safe=False)
 
 
 
