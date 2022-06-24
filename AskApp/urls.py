@@ -20,11 +20,14 @@ urlpatterns = [
     url(r'^ans/([0-9]+)$', views.answerApi),
     url(r'^vote/$', views.voteApi),
     url(r'^vote/([0-9]+)$', views.voteApi),
+     url(r'^uservote/$', views.getUserVotedApi),
     url(r'^categories/$', views.categoriesApi),
     url(r'^categories/([0-9]+)$', views.categoriesApi),
     url(r'^profile/$', views.ProfileApi),
     url(r'^profile/([0-9]+)$', views.   ProfileApi),
-   
+    url('changepass/([0-9]+)$', views.ChangePasswordView),
+    path('changepass/', views.ChangePasswordView),
+    path('api/change-password/', views.ChangePasswordView.as_view(), name='change-password'),
        
    
     path('register/', views.RegisterAPI.as_view(), name='register')

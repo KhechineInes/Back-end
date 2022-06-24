@@ -47,7 +47,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id','last_login','first_name','last_name', 'username', 'password','owner', 'date_joined' ,'email','account'  )
         extra_kwargs = {'password': {'write_only': True , 'required': True}} 
-
+    
    
 class user(serializers.ModelSerializer)  :
     account=ProfileSerializer()
@@ -58,6 +58,7 @@ class user(serializers.ModelSerializer)  :
     
 # Register Serializer
 class RegisterSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'password')
@@ -67,7 +68,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(validated_data['username'], validated_data['email'], validated_data['password'])
         #token, created = Token.objects.get_or_create(user=user)
         return user
- 
+    
     
     
     
@@ -93,8 +94,15 @@ class postserializer(serializers.ModelSerializer):
     
     
     
+class ChangePasswordSerializer(serializers.Serializer):
+    model = User
+
+    """
+    Serializer for password change endpoint.
+    """
     
-    
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
     
 class AnswersSerializer(serializers.ModelSerializer):
     user=UserSerializer()
@@ -114,10 +122,10 @@ class AnswersSerializer(serializers.ModelSerializer):
         
         
 class VoteSerializer(serializers.ModelSerializer):
-    user_id=UserSerializer()
-    post_id=postserializer()
-    ans_id=AnswersSerializer()
-    owner = serializers.ReadOnlyField(source='owner.username') #important
+   # user_id=UserSerializer()
+   # post_id=postserializer()
+    #ans_id=AnswersSerializer()
+ 
     class Meta:
         model = Vote
         fields = ('VoteId',
@@ -125,12 +133,27 @@ class VoteSerializer(serializers.ModelSerializer):
                   'Negative',
                   'post_id',
                   'ans_id',
-                  'date',
+               
                   'user_id',
-                  'owner',
+                  
                   )
            
-        
+class voteSerializer(serializers.ModelSerializer):
+    user_id=UserSerializer()
+   
+ 
+    class Meta:
+        model = Vote
+        fields = ('VoteId',
+                  'Positive',
+                  'Negative',
+                  'post_id',
+                  'ans_id',
+               
+               
+                  'user_id',
+                  
+                  )     
         
 class CategoriesSerializer(serializers.ModelSerializer):
 
@@ -179,12 +202,13 @@ class PublicationSerializer(serializers.ModelSerializer):
 
                   )
 class userSerializer(serializers.ModelSerializer):
-    
+    account=ProfileSerializer()
     class Meta:
         model = User
-        fields=('id','username' , 'first_name' , 'last_name' ,'email')
+        fields=('id','username' , 'first_name' , 'last_name' ,'email','account')
         
-
+   
+    
 
     
     

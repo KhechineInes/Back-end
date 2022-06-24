@@ -25,7 +25,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 from AskApp.models import Answers, Cat, Posts, Profile, Vote
-from AskApp.serializers import AnswersSerializer, CategoriesSerializer, CategorySerializer, ProfileSerializer, PublicationSerializer, RegisterSerializer, UserSerializer, VoteSerializer, ansserializer, postSerializer, userSerializer
+from AskApp.serializers import AnswersSerializer, CategoriesSerializer, CategorySerializer, ChangePasswordSerializer, ProfileSerializer, PublicationSerializer, RegisterSerializer, UserSerializer, VoteSerializer, ansserializer, postSerializer, userSerializer, voteSerializer
 from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
 from rest_framework import authentication
@@ -33,6 +33,12 @@ from rest_framework import exceptions
 from rest_framework import status, viewsets
 from django.views.decorators.debug import sensitive_post_parameters
 from rest_framework import generics, permissions
+from rest_framework import status
+from rest_framework import generics
+from rest_framework.response import Response
+from django.contrib.auth.models import User
+from . import serializers
+from rest_framework.permissions import IsAuthenticated 
 
 
 
@@ -123,8 +129,12 @@ def userApi(request, id=0):
         user_data = JSONParser().parse(request)
         user = User.objects.get(username=user_data['username'])
         user_serializer = userSerializer(user, data=user_data)
-        if user_serializer.is_valid():
+        
+        Id = Profile.objects.get(account_id=user_data['id'])
+        profile_serializer = ProfileSerializer(Id, data=user_data)
+        if user_serializer.is_valid() and  profile_serializer.is_valid():
             user_serializer.save()
+            profile_serializer.save()           
             return JsonResponse("Updated Successfully!!", safe=False)
         return JsonResponse("Failed to Update.", safe=False)
 
@@ -139,6 +149,8 @@ class RegisterAPI(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        
+        
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         
@@ -149,6 +161,36 @@ class RegisterAPI(generics.GenericAPIView):
         #})
         return JsonResponse("Added Successfully", safe=False
                             )
+class ChangePasswordView(generics.UpdateAPIView):
+    serializer_class = ChangePasswordSerializer
+    model = User
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self, queryset=None):
+        obj = self.request.user
+        return obj
+
+    def update(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            # Check old password
+            if not self.object.check_password(serializer.data.get("old_password")):
+                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            # set_password also hashes the password that the user will get
+            self.object.set_password(serializer.data.get("new_password"))
+            self.object.save()
+            response = {
+                'status': 'success',
+                'code': status.HTTP_200_OK,
+                'message': 'Password updated successfully',
+                'data': []
+            }
+
+            return Response(response)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 @csrf_exempt
 def postApi(request, id=0):
     if request.method == 'GET':
@@ -254,9 +296,9 @@ def voteApi(request, id=0):
 
     elif request.method == 'POST':
         vote_data = JSONParser().parse(request)
-        vote_serializer = VoteSerializer(data=vote_data)
-        if vote_serializer.is_valid():
-            vote_serializer.save()
+        Vote_serializer = VoteSerializer(data=vote_data)
+        if Vote_serializer.is_valid():
+            Vote_serializer.save()
             return JsonResponse("Added Successfully!!", safe=False)
         return JsonResponse("Failed to Add.", safe=False)
 
@@ -267,7 +309,12 @@ def voteApi(request, id=0):
         ans.delete()
         return JsonResponse("Deleted Succeffully!!", safe=False)
 
-
+@csrf_exempt
+def getUserVotedApi(request, id=0):
+    if request.method == 'GET':
+        votes = Vote.objects.all()
+        vote_serializer = voteSerializer(votes, many=True)
+        return JsonResponse(vote_serializer.data, safe=False)
 @csrf_exempt
 def ProfileApi(request, id=0):
     if request.method == 'GET':
