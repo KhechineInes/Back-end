@@ -1,4 +1,6 @@
 from email.message import EmailMessage
+import os
+import win32com.client as win32
 from enum import Enum
 import json
 from multiprocessing import AuthenticationError
@@ -25,7 +27,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 from AskApp.models import Answers, Cat, Posts, Profile, Vote
-from AskApp.serializers import AnswersSerializer, CategoriesSerializer, CategorySerializer, ChangePasswordSerializer, ProfileSerializer, PublicationSerializer, RegisterSerializer, UserSerializer, VoteSerializer, ansserializer, postSerializer, userSerializer, voteSerializer
+from AskApp.serializers import AnswersSerializer, CategoriesSerializer, CategorySerializer, ChangePasswordSerializer, ProfileSerializer, PublicationSerializer, RegisterSerializer, UserSerializer, VoteSerializer, ansserializer, postSerializer, userSerializer, validate, voteSerializer
 from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
 from rest_framework import authentication
@@ -199,25 +201,28 @@ def postApi(request, id=0):
         return JsonResponse(post_serializer.data, safe=False)
 
     elif request.method == 'POST':
+       
+       
         post_data = JSONParser().parse(request)
         post_serializer = postSerializer(data=post_data)
         if post_serializer.is_valid():
             post_serializer.save()
-            subject = "New Post has been added "
-            message = " Someone has added a new post "
-            to_email = ["'ask.to.solve.etc@gmail.com'"]
+           
+            #subject = "New Post has been added "
+           # message = " Someone has added a new post "
+            #to_email = ["'ask.to.solve.etc@gmail.com'"]
 
-            from_email = settings.EMAIL_HOST_USER
-            if subject and message and from_email:
+            #from_email = settings.EMAIL_HOST_USER
+            #if subject and message and from_email:
 
-                send_mail(
-                    'Subject - AskToSolve new post',
-                    subject + ',\n' + message,
-                    'sender@example.com',  # Admin
-                    [
-                        'khechine.ines@gmail.com',
-                    ]
-                )
+               # send_mail(
+                #    'Subject - AskToSolve new post',
+                #    subject + ',\n' + message,
+                #    'sender@example.com',  # Admin
+                #    [
+                   #     'khechine.ines@gmail.com',
+                 #   ]
+              #  )
 
             print(post_data, "success")
             # send_email(request)
@@ -286,7 +291,18 @@ def answerApi(request, id=0):
         return JsonResponse("Deleted Succeffully!!", safe=False)
 
 
-
+@csrf_exempt
+def validateApi(request, id=0):
+    if request.method == 'PUT':
+        answers_data = JSONParser().parse(request)
+        answers = Answers.objects.get(AnsId=answers_data['AnsId'])
+        answers_serializer = validate(answers, data=answers_data)
+        if answers_serializer.is_valid():
+            answers_serializer.save()
+            return JsonResponse("Validated Successfully!! ", safe=False)
+        return JsonResponse("Failed to validate", safe=False)
+    
+    
 @csrf_exempt
 def voteApi(request, id=0):
     if request.method == 'GET':

@@ -93,6 +93,7 @@ class Answers(models.Model):
     Ans = models.CharField(max_length=255)
     date = models.DateTimeField(auto_now_add=True)
     pub_id = models.ForeignKey(Posts,null=True,on_delete=models.CASCADE,related_name='anspub')
+    validated = models.BooleanField(default=False)
 
 class Vote(models.Model):
     user_id= models.ForeignKey(User,null=True,on_delete=models.CASCADE,related_name='user')

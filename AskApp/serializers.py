@@ -118,6 +118,7 @@ class AnswersSerializer(serializers.ModelSerializer):
                   'user',
                   'user',
                   'owner',
+                  'validated'
                   )
         
         
@@ -154,7 +155,12 @@ class voteSerializer(serializers.ModelSerializer):
                   'user_id',
                   
                   )     
-        
+class validate(serializers.ModelSerializer):
+    class Meta:
+        model = Answers
+        fields = ('AnsId','validated','user_id',
+                  
+                  )   
 class CategoriesSerializer(serializers.ModelSerializer):
 
     owner = serializers.ReadOnlyField(source='owner.username') #important    
@@ -245,6 +251,7 @@ class ansserializer(serializers.ModelSerializer):
                   'Ans',
                   'pub_id',
                   'user',
+                  'validated'
                   
                   
                   

@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^post/([0-9]+)$', views.postApi),
     url(r'^ans/$', views.answerApi),
     url(r'^ans/([0-9]+)$', views.answerApi),
+    url(r'^validate/$', views.validateApi),
     url(r'^vote/$', views.voteApi),
     url(r'^vote/([0-9]+)$', views.voteApi),
      url(r'^uservote/$', views.getUserVotedApi),
