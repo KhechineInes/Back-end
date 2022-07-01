@@ -26,8 +26,8 @@ from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from AskApp.models import Answers, Cat, Posts, Profile, Vote
-from AskApp.serializers import AnswersSerializer, CategoriesSerializer, CategorySerializer, ChangePasswordSerializer, ProfileSerializer, PublicationSerializer, RegisterSerializer, UserSerializer, VoteSerializer, ansserializer, postSerializer, userSerializer, validate, voteSerializer
+from AskApp.models import Answers, Cat, Posts, Profile, Vote, numberofVisit
+from AskApp.serializers import AnswersSerializer, CategoriesSerializer, CategorySerializer, ChangePasswordSerializer, NbVisitSerializer, ProfileSerializer, PublicationSerializer, RegisterSerializer, UserSerializer, VoteSerializer, ansserializer, postSerializer, userSerializer, validate, voteSerializer
 from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
 from rest_framework import authentication
@@ -244,8 +244,21 @@ def postApi(request, id=0):
         post = Posts.objects.get(pubId=id)
         post.delete()
         return JsonResponse("Deleted Succeffully!!", safe=False)
-
-
+@csrf_exempt
+def NbVisitApi(request, id=0):
+    if request.method == 'GET':
+        Nb= numberofVisit.objects.all()
+        nb_ser=NbVisitSerializer(Nb,many=True)
+        return JsonResponse(nb_ser.data, safe=False)
+    elif request.method == 'POST':
+        nb_data = JSONParser().parse(request)
+        
+        nb_ser=NbVisitSerializer(data=nb_data)
+        if nb_ser.is_valid():
+            nb_ser.save()
+            return JsonResponse("success",safe=False)
+        return JsonResponse("Failed", safe=False)
+    
 @csrf_exempt
 def answerApi(request, id=0):
     if request.method == 'GET':

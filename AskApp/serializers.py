@@ -10,7 +10,7 @@ from AskApp.models import Answers, Cat, Posts
 from AsktoSolve import settings
 from allauth.account.adapter import get_adapter
 
-from .models import Profile, User, Vote
+from .models import Profile, User, Vote, numberofVisit
 from allauth.account.utils import setup_user_email
 
 from django.contrib.auth import get_user_model, authenticate
@@ -120,6 +120,14 @@ class AnswersSerializer(serializers.ModelSerializer):
                   'owner',
                   'validated'
                   )
+        
+class NbVisitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = numberofVisit
+        fields=('nbBack', 'nbFront' ,'nbDesigners','date')       
+        
+        
+        
         
         
 class VoteSerializer(serializers.ModelSerializer):

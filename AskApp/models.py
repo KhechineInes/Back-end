@@ -103,3 +103,9 @@ class Vote(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     post_id = models.ForeignKey(Posts,null=True,on_delete=models.CASCADE,related_name='poste')
     ans_id = models.ForeignKey(Answers,null=True,on_delete=models.CASCADE,related_name='ans')
+class numberofVisit(models.Model):
+   id = models.AutoField(primary_key=True)
+   nbBack = models.IntegerField(null=True)
+   nbFront = models.IntegerField(null=True)
+   nbDesigners=models.IntegerField(null=True)
+   date=models.DateTimeField(auto_now_add=True)

@@ -29,7 +29,8 @@ urlpatterns = [
     url('changepass/([0-9]+)$', views.ChangePasswordView),
     path('changepass/', views.ChangePasswordView),
     path('api/change-password/', views.ChangePasswordView.as_view(), name='change-password'),
-       
+    url(r'^visit/$', views.NbVisitApi),
+    url(r'^visit/([0-9]+)$', views.NbVisitApi),  
    
     path('register/', views.RegisterAPI.as_view(), name='register')
     
